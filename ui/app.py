@@ -174,12 +174,15 @@ st.markdown("""
 
 
 # ─── Singleton Engine (cached across reruns) ─────────────────────────────────
+_CACHE_VERSION = "v3-completeness"   # bump this string to force a cache reload
+
 @st.cache_resource(show_spinner="⏳ Indexing PDF corpus and loading retrieval engine…")
-def get_rag_engine():
+def get_rag_engine(_version: str = _CACHE_VERSION):
+    """_version param is intentionally unused — it only exists to bust the cache."""
     retriever = HybridRetriever()
     return RAGEngine(retriever=retriever)
 
-engine = get_rag_engine()
+engine = get_rag_engine(_CACHE_VERSION)
 retriever = engine.retriever
 
 # ─── Session State Defaults ───────────────────────────────────────────────────
@@ -265,6 +268,12 @@ with st.sidebar:
         • Automatic abstention on missing facts
     </div>
     """, unsafe_allow_html=True)
+
+    st.divider()
+    if st.button("🔄 Clear Cache & Reload Engine", use_container_width=True,
+                 help="Force-reloads the RAG engine — use if answers look incomplete or stale"):
+        st.cache_resource.clear()
+        st.rerun()
 
 
 # ─── Preset Query Tabs ────────────────────────────────────────────────────────
