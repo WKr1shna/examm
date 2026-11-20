@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     CHROMA_PERSIST_DIR: str = str(BASE_DIR / "chroma_db")
     EMBEDDING_MODEL: str = "models/gemini-embedding-001"
     LLM_MODEL: str = "gemini-2.0-flash"
-    FALLBACK_MODELS: list = ["gemini-2.0-flash", "gemini-1.5-flash"]
+    FALLBACK_MODELS: list = ["gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-1.5-flash"]
     TOP_K: int = 5
     RRF_K: int = 60
     FASTAPI_PORT: int = 8000

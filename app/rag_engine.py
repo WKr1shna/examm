@@ -1,9 +1,12 @@
 import os
 import re
 import time
+import logging
 from typing import List, Dict, Any, Optional
 from google import genai
 from google.genai import types
+
+logger = logging.getLogger(__name__)
 
 from app.config import settings, EXACT_ABSTENTION_MESSAGE
 from app.retriever import HybridRetriever
@@ -51,7 +54,8 @@ class RAGEngine:
                 )
                 if response and response.text:
                     return response.text.strip()
-            except Exception:
+            except Exception as e:
+                logger.warning(f"Model '{model_name}' failed: {e}")
                 continue
 
         return EXACT_ABSTENTION_MESSAGE
