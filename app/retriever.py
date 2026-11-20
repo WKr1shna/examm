@@ -215,3 +215,47 @@ class HybridRetriever:
             })
 
         return results
+
+    def expand_with_neighbors(
+        self,
+        rrf_results: List[Dict[str, Any]],
+        top_n: int = 3
+    ) -> List[Dict[str, Any]]:
+        """
+        For the top-N highest-ranked RRF chunks, also pull the immediately
+        adjacent pages (page-1, page+1) so that lists or recipe cards that
+        span a page boundary are always included in full.
+
+        Returns a deduplicated, page-number-sorted list of all chunks.
+        """
+        already_included: set = {c["page_number"] for c in rrf_results}
+        extra_chunks: List[Dict[str, Any]] = []
+
+        for chunk_data in rrf_results[:top_n]:
+            current_page = chunk_data["page_number"]
+            for neighbor_page in (current_page - 1, current_page + 1):
+                if neighbor_page in already_included:
+                    continue
+                if neighbor_page not in self.chunk_by_page:
+                    continue
+                neighbor = self.chunk_by_page[neighbor_page]
+                extra_chunks.append({
+                    "chunk_id":    neighbor.chunk_id,
+                    "page_number": neighbor.page_number,
+                    "text":        neighbor.text,
+                    "chapter":     neighbor.chapter,
+                    "module":      neighbor.module,
+                    "rrf_rank":    999,          # sentinel – neighbor, not ranked
+                    "rrf_score":   0.0,
+                    "dense_rank":  999,
+                    "dense_score": 0.0,
+                    "sparse_rank": 999,
+                    "sparse_score": 0.0,
+                    "metadata":    neighbor.metadata,
+                })
+                already_included.add(neighbor_page)
+
+        combined = rrf_results + extra_chunks
+        # Sort by page number so the LLM sees coherent, ordered context
+        combined.sort(key=lambda c: c["page_number"])
+        return combined

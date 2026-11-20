@@ -19,8 +19,9 @@ class Settings(BaseSettings):
     EMBEDDING_MODEL: str = "models/gemini-embedding-001"
     LLM_MODEL: str = "gemini-3.5-flash-lite"
     FALLBACK_MODELS: list = ["gemini-3.5-flash-lite", "gemini-3.8-flash", "gemini-3.5-flash"]
-    TOP_K: int = 5
+    TOP_K: int = 7
     RRF_K: int = 60
+    NEIGHBOR_EXPANSION_TOP_N: int = 3   # Expand neighbors for the top-N RRF results
     FASTAPI_PORT: int = 8000
     STREAMLIT_PORT: int = 8501
     ABSTENTION_MESSAGE: str = EXACT_ABSTENTION_MESSAGE
